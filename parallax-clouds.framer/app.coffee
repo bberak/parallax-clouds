@@ -25,32 +25,65 @@ class Cloud extends Layer
 				afterCreated(part, i)
 	
 class CloudSystem extends Layer
-	constructor: ({x, y, z, noise, radar, parent, afterCloudCreated}) ->
+	constructor: ({originX, originY, originZ, noise, radar, parent, afterCloudCreated, damping}) ->
 		super
 			parent: bg
-			midX: x 
-			midY: y
-			z: z
+			midX: originX 
+			midY: originY
+			z: originZ
 			backgroundColor: "transparent"
 			height: 1
 			width: 1
 			
+		@originX = originX
+		@originY = originY
+		@originZ = originZ
 		@noise = noise
 		@radar = radar
+		@afterCloudCreated = afterCloudCreated
+		@damping = damping
 		@noiseOffsetX = Utils.randomNumber(-50000, 50000)
 		@noiseOffsetY = Utils.randomNumber(-50000, 50000)
 		
 		this.generateCloudsAroundPoint
-			x: x
-			y: y
+			x: 0
+			y: 0
 	
 	generateCloudsAroundPoint: ({x, y}) ->
-		for xOffset in [0.. 250] by 25
-			for yOffset in [0.. 25] by 25
+		for xOffset in [-@radar.. @radar] by 100
+			for yOffset in [-@radar.. @radar] by 100
 				cloudX = x + xOffset
 				cloudY = y + yOffset
-				print cloudX + " " + cloudY	
+				noiseX = cloudX + @noiseOffsetX
+				noiseY = cloudY	+ @noiseOffsetY
+				noiseVal = @noise(noiseX, noiseY, 0)
+				if noiseVal > 0.05 and noiseVal < 0.17
+					cloud = new Cloud
+						parent: this
+						x: cloudX
+						y: cloudY
+						numParts: 5
+						partWidth: 100
+						partHeight: 100
+						partVarianceWidth: 0
+						partVarianceHeight: 0
+						partVarianceX: 0.6
+						partVarianceY: 0.4
+						afterCreated: @afterCloudCreated
+		@lastX = x
+		@lastY = y
 		
+	move: ({deltaX, deltaY}) ->
+		deltaX *= @damping
+		deltaY *= @damping
+		
+		this.x += deltaX
+		this.y += deltaY
+		
+		this.generateCloudsAroundPoint
+			x: @lastX - deltaX
+			y: @lastY - deltaY
+
 bg = new BackgroundLayer 
 	backgroundColor: "rgba(191,173,255,1)"
 	
@@ -59,12 +92,12 @@ centerY = Screen.height / 2
 
 cs = new CloudSystem
 	parent: bg
-	x: centerX
-	y: centerY
-	z: 0
-	numClouds: 5
-	scrollDamping: 0
+	originX: centerX
+	originY: centerY
+	originZ: 0
+	radar: 250
 	noise: PerlinNoise.noise
+	damping: 0.15
 	afterCloudCreated: (layer, index) ->
 		layer.borderRadius = 125
 		layer.backgroundColor= "#DDD"
@@ -77,12 +110,12 @@ cs = new CloudSystem
 	
 cs2 = new CloudSystem
 	parent: bg
-	x: centerX
-	y: centerY
-	z: 1
-	numClouds: 5
-	scrollDamping: 0
+	originX: centerX
+	originY: centerY
+	originZ: 1
+	radar: 250
 	noise: PerlinNoise.noise
+	damping: 0.5
 	afterCloudCreated: (layer, index) ->
 		layer.borderRadius = 125
 		layer.backgroundColor= "#EEE"
@@ -96,15 +129,45 @@ cs2 = new CloudSystem
 bg.onSwipe (event, layer) ->
 	deltaX = event.x - event.previousX
 	deltaY = event.y - event.previousY
+	cs.move
+		deltaX: deltaX
+		deltaY: deltaY
+	cs2.move
+		deltaX: deltaX
+		deltaY: deltaY
+		
+Events.wrap(window).addEventListener "keydown", (event) ->
+	if event.keyCode is 37
+  		cs.move
+    		deltaX: 200
+    		deltaY: 0
+    	cs2.move
+    		deltaX: 200
+    		deltaY: 0
+  	if event.keyCode is 38
+    	cs.move
+    		deltaX: 0
+    		deltaY: 200
+    	cs2.move
+    		deltaX: 0
+    		deltaY: 200
+  	if event.keyCode is 39
+  		cs.move
+    		deltaX: -200
+    		deltaY: 0
+    	cs2.move
+    		deltaX: -200
+    		deltaY: 0
+  	if event.keyCode is 40
+  		cs.move
+	    	deltaX: 0
+	    	deltaY: -200
+	    cs2.move
+	    	deltaX: 0
+	    	deltaY: -200
+		
 
-	cs.x = cs.x + deltaX * 0.15
-	cs.y = cs.y + deltaY * 0.15
-	cs2.x = cs2.x + deltaX * 0.5     
-	cs2.y = cs2.y + deltaY * 0.5
-	
-	centerX += deltaX
-	centerY += deltaY
-	print deltaX + " " + deltaY
+
 		
 	
 
