@@ -26,7 +26,7 @@ class Cloud extends Layer
 				height: partHeight + Utils.randomNumber(-heightOffset, heightOffset)
 	
 class CloudSystem extends Layer
-	constructor: ({x, y, z, numClouds, color, scrollDamping, noise, parent}) ->
+	constructor: ({x, y, z, numClouds, color, scrollDamping, noise, parent, opacity}) ->
 		super
 			parent: bg
 			midX: x 
@@ -45,7 +45,6 @@ class CloudSystem extends Layer
 				parent: this
 				x: Utils.randomNumber(-500, 500)
 				y: Utils.randomNumber(-500, 500)
-				opacity: 1
 				numParts: 5
 				partWidth: 100
 				partHeight: 100
@@ -55,12 +54,13 @@ class CloudSystem extends Layer
 				partVarianceY: 0.4
 				rounding: 125
 				color: color
-
+				opacity: opacity
 
 bg = new BackgroundLayer 
 	backgroundColor: "#EEE"
 
 cs = new CloudSystem
+	parent: bg
 	x: Screen.width / 2
 	y: Screen.height / 2
 	z: 100
@@ -68,9 +68,10 @@ cs = new CloudSystem
 	scrollDamping: 0
 	noise: PerlinNoise.noise
 	color: "#12DEFF"
-	parent: bg
+	opacity: 0.5
 	
 cs2 = new CloudSystem
+	parent: bg
 	x: Screen.width / 2
 	y: Screen.height / 2
 	z: 100
@@ -78,9 +79,8 @@ cs2 = new CloudSystem
 	scrollDamping: 0
 	noise: PerlinNoise.noise
 	color: "#12DE11"
-	parent: bg
+	opacity: 0.5
 	
-
 bg.onSwipe (event, layer) ->
 	deltaX = event.x - event.previousX
 	deltaY = event.y - event.previousY
