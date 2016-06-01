@@ -25,7 +25,7 @@ class Cloud extends Layer
 				afterCreated(part, i)
 	
 class CloudSystem extends Layer
-	constructor: ({x, y, z, numClouds, scrollDamping, noise, parent, afterCloudCreated}) ->
+	constructor: ({x, y, z, noise, radar, parent, afterCloudCreated}) ->
 		super
 			parent: bg
 			midX: x 
@@ -34,33 +34,33 @@ class CloudSystem extends Layer
 			backgroundColor: "transparent"
 			height: 1
 			width: 1
+			
+		@noise = noise
+		@radar = radar
+		@noiseOffsetX = Utils.randomNumber(-50000, 50000)
+		@noiseOffsetY = Utils.randomNumber(-50000, 50000)
 		
-		@scrollDamping = scrollDamping	
+		this.generateCloudsAroundPoint
+			x: x
+			y: y
+	
+	generateCloudsAroundPoint: ({x, y}) ->
+		for xOffset in [0.. 250] by 25
+			for yOffset in [0.. 25] by 25
+				cloudX = x + xOffset
+				cloudY = y + yOffset
+				print cloudX + " " + cloudY	
 		
-		noiseStartX = Utils.randomNumber(-50000, 50000)
-		noiseStartY = Utils.randomNumber(-50000, 50000)
-		
-		for i in [0.. numClouds]
-			cloud = new Cloud
-				parent: this
-				x: Utils.randomNumber(-500, 500)
-				y: Utils.randomNumber(-500, 500)
-				numParts: 5
-				partWidth: 100
-				partHeight: 100
-				partVarianceWidth: 0
-				partVarianceHeight: 0
-				partVarianceX: 0.6
-				partVarianceY: 0.4
-				afterCreated: afterCloudCreated,
-				
 bg = new BackgroundLayer 
 	backgroundColor: "rgba(191,173,255,1)"
+	
+centerX = Screen.width / 2
+centerY = Screen.height / 2
 
 cs = new CloudSystem
 	parent: bg
-	x: Screen.width / 2
-	y: Screen.height / 2
+	x: centerX
+	y: centerY
 	z: 0
 	numClouds: 5
 	scrollDamping: 0
@@ -77,8 +77,8 @@ cs = new CloudSystem
 	
 cs2 = new CloudSystem
 	parent: bg
-	x: Screen.width / 2
-	y: Screen.height / 2
+	x: centerX
+	y: centerY
 	z: 1
 	numClouds: 5
 	scrollDamping: 0
@@ -101,6 +101,10 @@ bg.onSwipe (event, layer) ->
 	cs.y = cs.y + deltaY * 0.15
 	cs2.x = cs2.x + deltaX * 0.5     
 	cs2.y = cs2.y + deltaY * 0.5
+	
+	centerX += deltaX
+	centerY += deltaY
+	print deltaX + " " + deltaY
 		
 	
 
