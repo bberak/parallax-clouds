@@ -1,7 +1,7 @@
 PerlinNoise = require "perlinNoise"
 
 class Cloud extends Layer
-	constructor: ({x, y, numParts, partWidth, partHeight, partVarianceWidth, partVarianceHeight, partVarianceX, partVarianceY, parent, styleFunction}) ->
+	constructor: ({x, y, numParts, partWidth, partHeight, partVarianceWidth, partVarianceHeight, partVarianceX, partVarianceY, parent, afterCreated}) ->
 		super
 			midX: x 
 			midY: y
@@ -21,11 +21,11 @@ class Cloud extends Layer
 				midY: Utils.randomNumber(-yOffSet, yOffSet)
 				width: partWidth + Utils.randomNumber(-widthOffset, widthOffset)
 				height: partHeight + Utils.randomNumber(-heightOffset, heightOffset)
-			if styleFunction
-				styleFunction(part, i)
+			if afterCreated
+				afterCreated(part, i)
 	
 class CloudSystem extends Layer
-	constructor: ({x, y, z, numClouds, scrollDamping, noiseFunction, parent, styleFunction}) ->
+	constructor: ({x, y, z, numClouds, scrollDamping, noise, parent, afterCloudCreated}) ->
 		super
 			parent: bg
 			midX: x 
@@ -52,10 +52,10 @@ class CloudSystem extends Layer
 				partVarianceHeight: 0
 				partVarianceX: 0.6
 				partVarianceY: 0.4
-				styleFunction: styleFunction,
+				afterCreated: afterCloudCreated,
 				
 bg = new BackgroundLayer 
-	backgroundColor: "#EEE"
+	backgroundColor: "rgba(191,173,255,1)"
 
 cs = new CloudSystem
 	parent: bg
@@ -64,10 +64,16 @@ cs = new CloudSystem
 	z: 0
 	numClouds: 5
 	scrollDamping: 0
-	noiseFunction: PerlinNoise.noise
-	styleFunction: (layer, index) ->
+	noise: PerlinNoise.noise
+	afterCloudCreated: (layer, index) ->
 		layer.borderRadius = 125
-		layer.backgroundColor= "#12DEFF"
+		layer.backgroundColor= "#DDD"
+		layer.scale = 0.2
+		layer.opacity = 0.2
+		layer.animate
+			properties:
+				scale: 1
+				opacity: 1
 	
 cs2 = new CloudSystem
 	parent: bg
@@ -76,10 +82,16 @@ cs2 = new CloudSystem
 	z: 1
 	numClouds: 5
 	scrollDamping: 0
-	noiseFunction: PerlinNoise.noise
-	styleFunction: (layer, index) ->
+	noise: PerlinNoise.noise
+	afterCloudCreated: (layer, index) ->
 		layer.borderRadius = 125
-		layer.backgroundColor= "#12DE11"
+		layer.backgroundColor= "#EEE"
+		layer.scale = 0.2
+		layer.opacity = 0.2
+		layer.animate
+			properties:
+				scale: 1
+				opacity: 1
 	
 bg.onSwipe (event, layer) ->
 	deltaX = event.x - event.previousX
