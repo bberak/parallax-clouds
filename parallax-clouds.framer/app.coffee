@@ -1,31 +1,47 @@
 PerlinNoise = require "perlinNoise"
 
-class Cloud extends Layer
-	constructor: ({x, y, numParts, partWidth, partHeight, partVarianceWidth, partVarianceHeight, partVarianceX, partVarianceY, parent, afterCreated}) ->
-		super
-			midX: x 
-			midY: y
-			backgroundColor: "transparent"
-			parent: parent
-			width: 1
-			height: 1
-
-		for i in [0.. numParts]
-			xOffset = partWidth * partVarianceX
-			yOffSet = partHeight * partVarianceY
-			widthOffset = partWidth * partVarianceWidth
-			heightOffset = partHeight * partVarianceHeight
-			part = new Layer
-				parent: this
-				midX: Utils.randomNumber(-xOffset, xOffset)
-				midY: Utils.randomNumber(-yOffSet, yOffSet)
-				width: partWidth + Utils.randomNumber(-widthOffset, widthOffset)
-				height: partHeight + Utils.randomNumber(-heightOffset, heightOffset)
-			if afterCreated
-				afterCreated(part, i)
+createBasicCloud = ({x, y, parent}) ->
+	cloud = new Layer
+		midX: x
+		midY: y
+		parent: parent
+		width: 1
+		height: 1
+		backgroundColor: "transparent"
+		scale: 0.2
+		opacity: 0.2
+		
+	partWidth = 100
+	partHeight = 100
+	
+	for i in [0.. 5]
+		xOffset = partWidth * 0.6
+		yOffSet = partHeight * 0.4
+		widthOffset = partWidth * 0
+		heightOffset = partHeight * 0
+		part = new Layer
+			parent: cloud
+			midX: Utils.randomNumber(-xOffset, xOffset)
+			midY: Utils.randomNumber(-yOffSet, yOffSet)
+			width: partWidth + Utils.randomNumber(-widthOffset, widthOffset)
+			height: partHeight + Utils.randomNumber(-heightOffset, heightOffset)
+			borderRadius: 125
+			backgroundColor: "#EEE"
+	
+	cloud.animate
+		properties:
+			scale: 1
+			opacity: 1
+	
+	cloud.animate
+		properties:
+			y: 5000
+		time: 200
+	
+	return cloud
 	
 class CloudSystem extends Layer
-	constructor: ({x, y, z, parent, interval}) ->
+	constructor: ({x, y, z, parent, interval, createCloudFunc}) ->
 		super
 			parent: parent
 			midX: x
@@ -37,22 +53,15 @@ class CloudSystem extends Layer
 			
 		@sourceX = 0
 		@sourceY = 0
+		@createCloudFunc = createCloudFunc
 		
-		Utils.interval interval, this.generateCloud.bind(this)
+		Utils.interval interval, this.onInterval.bind(this)
 		
-	generateCloud: () ->
-		cloud = new Cloud
-          parent: this
-          x: @sourceX
-          y: @sourceY
-          numParts: 5
-          partWidth: 100
-          partHeight: 100
-          partVarianceWidth: 0
-          partVarianceHeight: 0
-          partVarianceX: 0.6
-          partVarianceY: 0.4
-          afterCreated: @afterCloudCreated
+	onInterval: () ->
+		@createCloudFunc
+			x: @sourceX
+			y: @sourceY
+			parent: this
 		
 	move: ({deltaX, deltaY}) ->
 		this.midX += deltaX
@@ -66,9 +75,10 @@ bg = new BackgroundLayer
 cs = new CloudSystem
 	parent: bg
 	x: Screen.width / 2
-	y: -150
+	y: 0
 	z: 0
 	interval: 5
+	createCloudFunc: createBasicCloud
 
 bg.onSwipe (event, layer) ->
 	deltaX = event.x - event.previousX
