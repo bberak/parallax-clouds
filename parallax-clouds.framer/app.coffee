@@ -1,9 +1,9 @@
 PerlinNoise = require "perlinNoise"
 
-createBasicCloud = ({x, y, parent}) ->
+createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, animateTime}) -> ({x, y, parent}) ->
 	cloud = new Layer
-		midX: x
-		midY: y
+		midX: getXFunc x
+		midY: getYFunc y
 		parent: parent
 		width: 1
 		height: 1
@@ -26,7 +26,8 @@ createBasicCloud = ({x, y, parent}) ->
 			width: partWidth + Utils.randomNumber(-widthOffset, widthOffset)
 			height: partHeight + Utils.randomNumber(-heightOffset, heightOffset)
 			borderRadius: 125
-			backgroundColor: "#EEE"
+			backgroundColor: color
+			scale: scale
 	
 	cloud.animate
 		properties:
@@ -35,13 +36,14 @@ createBasicCloud = ({x, y, parent}) ->
 	
 	cloud.animate
 		properties:
-			y: 5000
-		time: 200
+			x: animateX
+			y: animateY
+		time: animateTime
 	
 	return cloud
 	
 class CloudSystem extends Layer
-	constructor: ({x, y, z, parent, interval, createCloudFunc}) ->
+	constructor: ({x, y, z, parent, interval, createCloudFunc, damping}) ->
 		super
 			parent: parent
 			midX: x
@@ -54,16 +56,21 @@ class CloudSystem extends Layer
 		@sourceX = 0
 		@sourceY = 0
 		@createCloudFunc = createCloudFunc
+		@damping = damping
+		@interval = interval
 		
-		Utils.interval interval, this.onInterval.bind(this)
+		this.onInterval()
 		
 	onInterval: () ->
 		@createCloudFunc
 			x: @sourceX
 			y: @sourceY
 			parent: this
+		Utils.delay Utils.randomNumber(5, @interval), this.onInterval.bind(this)
 		
 	move: ({deltaX, deltaY}) ->
+		deltaX *= @damping
+		deltaY *= @damping
 		this.midX += deltaX
 		this.midY += deltaY
 		@sourceX -= deltaX
@@ -72,20 +79,63 @@ class CloudSystem extends Layer
 bg = new BackgroundLayer 
 	backgroundColor: "rgba(191,173,255,1)"
 	
-cs = new CloudSystem
-	parent: bg
-	x: Screen.width / 2
-	y: 0
-	z: 0
-	interval: 5
-	createCloudFunc: createBasicCloud
+getHalfScreenWidth = () -> Screen.width / 2
+getHalfScreenHeight = () -> Screen.height / 2
+	
+cloudSystems = [
+	new CloudSystem
+		parent: bg
+		x: getHalfScreenWidth()
+		y: 0
+		z: 0
+		interval: 20
+		createCloudFunc: createBasicCloud 
+			color: "#DDD"
+			scale: 0.4
+			animateY: 5000
+			animateTime: 200
+			getXFunc: (x) -> x + Utils.randomNumber(- getHalfScreenWidth(), getHalfScreenWidth())
+			getYFunc: (y) -> y
+		damping: 0.15
+		
+	new CloudSystem
+		parent: bg
+		x: getHalfScreenWidth()
+		y: 0
+		z: 1
+		interval: 10
+		createCloudFunc: createBasicCloud 
+			color: "#EEE"
+			scale: 1
+			animateY: 5000
+			animateTime: 150
+			getXFunc: (x) -> x + Utils.randomNumber(- getHalfScreenWidth(), getHalfScreenWidth())
+			getYFunc: (y) -> y
+		damping: 0.5
+		
+	new CloudSystem
+		parent: bg
+		x: Screen.width + 150
+		y: getHalfScreenHeight()
+		z: 3
+		interval: 10
+		createCloudFunc: createBasicCloud 
+			color: "#FFF"
+			scale: 2
+			animateX: -5000
+			animateTime: 100
+			getXFunc: (x) -> x
+			getYFunc: (y) -> y + Utils.randomNumber(- getHalfScreenHeight(), getHalfScreenHeight())
+		damping: 1.5
+]
 
 bg.onSwipe (event, layer) ->
 	deltaX = event.x - event.previousX
 	deltaY = event.y - event.previousY
-	cs.move
-		deltaX: deltaX
-		deltaY: deltaY
+	for cs in cloudSystems
+		cs.move
+			deltaX: deltaX
+			deltaY: deltaY
 		
 
 
