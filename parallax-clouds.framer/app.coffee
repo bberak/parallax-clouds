@@ -42,21 +42,20 @@ createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, anima
 		borderRadius: size
 	
 	numHumpJoins = 3
-	offset = 1.5
-	spacing = baseRect.width / offset / numHumpJoins
+	centerOffset = 1.5
+	humpSpacing = baseRect.width / centerOffset / numHumpJoins
 	noiseSeed = Utils.randomNumber(-50000, 50000)
 	for i in [0.. numHumpJoins]
-		x = (-size / offset) + (i * spacing)
+		x = (-size / centerOffset) + (i * humpSpacing)
 		noiseVal = noiseFunc(x + noiseSeed, 0, 0)
 		hump = new Layer
 			midX: x
 			midY: -size / 2
 			parent: cloud
 			backgroundColor: color
-			width: size * noiseVal
-			height: size * noiseVal
+			width: size * 2 * noiseVal
+			height: size * 2 * noiseVal
 			borderRadius: size
-			scale: 2
 	
 	cloud.animate
 		properties:
@@ -111,7 +110,6 @@ bg = new BackgroundLayer
 getHalfScreenWidth = () -> Screen.width / 2
 getHalfScreenHeight = () -> Screen.height / 2
 	
-###	
 cloudSystems = [
 	new CloudSystem
 		parent: bg
@@ -126,6 +124,7 @@ cloudSystems = [
 			animateTime: 200
 			getXFunc: (x) -> x + Utils.randomNumber(- getHalfScreenWidth(), getHalfScreenWidth())
 			getYFunc: (y) -> y
+			noiseFunc: PerlinNoise.noise
 		damping: 0.15
 		
 	new CloudSystem
@@ -141,6 +140,7 @@ cloudSystems = [
 			animateTime: 150
 			getXFunc: (x) -> x + Utils.randomNumber(- getHalfScreenWidth(), getHalfScreenWidth())
 			getYFunc: (y) -> y
+			noiseFunc: PerlinNoise.noise
 		damping: 0.5
 		
 	new CloudSystem
@@ -151,11 +151,12 @@ cloudSystems = [
 		maxInterval: 10
 		createCloudFunc: createBasicCloud 
 			color: "#FFF"
-			scale: 2
+			scale: 1.5
 			animateX: -5000
 			animateTime: 100
 			getXFunc: (x) -> x
 			getYFunc: (y) -> y + Utils.randomNumber(- getHalfScreenHeight(), getHalfScreenHeight())
+			noiseFunc: PerlinNoise.noise
 		damping: 1.5
 ]
 
@@ -166,20 +167,6 @@ bg.onSwipe (event, layer) ->
 		cs.move
 			deltaX: deltaX
 			deltaY: deltaY
-###
-
-cc = createBasicCloud 
-	color: "#EEE"
-	scale: 1
-	animateTime: 150
-	getXFunc: (x) -> x 
-	getYFunc: (y) -> y
-	noiseFunc: PerlinNoise.noise
-
-cc 
-	x: 250
-	y: 500
-	parent: bg	
 
 
 		
