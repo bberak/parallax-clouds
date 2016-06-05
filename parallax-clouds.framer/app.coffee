@@ -1,6 +1,6 @@
 PerlinNoise = require "perlinNoise"
 
-createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, animateTime, noiseFunc}) -> ({x, y, parent}) ->
+createBasicCloud = ({color, getXFunc, getYFunc, scale, speed, noiseFunc}) -> ({x, y, parent}) ->
 	cloud = new Layer
 		midX: getXFunc x
 		midY: getYFunc y
@@ -61,9 +61,8 @@ createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, anima
 	
 	cloud.animate
 		properties:
-			x: animateX
-			y: animateY
-		time: animateTime
+			x: -5000
+		time: 200 - (200 * speed)
 	
 	return cloud
 	
@@ -117,8 +116,7 @@ cloudSystems = [
 		createCloudFunc: createBasicCloud 
 			color: "#DDD"
 			scale: 0.4
-			animateX: -5000
-			animateTime: 200
+			speed: 0.01
 			getXFunc: (x) -> x
 			getYFunc: (y) -> y + Utils.randomNumber(-250, 250)
 			noiseFunc: PerlinNoise.noise
@@ -133,8 +131,7 @@ cloudSystems = [
 		createCloudFunc: createBasicCloud 
 			color: "#EEE"
 			scale: 1
-			animateX: -5000
-			animateTime: 150
+			speed: 0.25
 			getXFunc: (x) -> x
 			getYFunc: (y) -> y + Utils.randomNumber(-50, 150)
 			noiseFunc: PerlinNoise.noise
@@ -149,8 +146,7 @@ cloudSystems = [
 		createCloudFunc: createBasicCloud 
 			color: "#FFF"
 			scale: 1.5
-			animateX: -5000
-			animateTime: 100
+			speed: 0.5
 			getXFunc: (x) -> x
 			getYFunc: (y) -> y + Utils.randomNumber(-100, 0)
 			noiseFunc: PerlinNoise.noise
