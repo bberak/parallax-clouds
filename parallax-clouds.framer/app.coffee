@@ -111,7 +111,7 @@ cloudSystems = [
 	new CloudSystem
 		parent: bg
 		x: Screen.width
-		y: Screen.height * 0.25
+		y: Screen.height * 0.5
 		z: 0
 		intervalFunc: () -> Utils.randomNumber(5, 10)
 		createCloudFunc: createBasicCloud 
@@ -127,7 +127,7 @@ cloudSystems = [
 	new CloudSystem
 		parent: bg
 		x: Screen.width
-		y: Screen.height * 0.5
+		y: Screen.height * 0.75
 		z: 1
 		intervalFunc: () -> Utils.randomNumber(5, 15)
 		createCloudFunc: createBasicCloud 
@@ -136,14 +136,14 @@ cloudSystems = [
 			animateX: -5000
 			animateTime: 150
 			getXFunc: (x) -> x
-			getYFunc: (y) -> y + Utils.randomNumber(-250, 250)
+			getYFunc: (y) -> y + Utils.randomNumber(-50, 150)
 			noiseFunc: PerlinNoise.noise
 		damping: 0.5
 		
 	new CloudSystem
 		parent: bg
 		x: Screen.width
-		y: Screen.height * 0.75
+		y: Screen.height
 		z: 3
 		intervalFunc: () -> Utils.randomNumber(5, 20)
 		createCloudFunc: createBasicCloud 
@@ -152,7 +152,7 @@ cloudSystems = [
 			animateX: -5000
 			animateTime: 100
 			getXFunc: (x) -> x
-			getYFunc: (y) -> y + Utils.randomNumber(-250, 250)
+			getYFunc: (y) -> y + Utils.randomNumber(-100, 0)
 			noiseFunc: PerlinNoise.noise
 		damping: 1.5
 ]
@@ -163,4 +163,4 @@ bg.onSwipe (event, layer) ->
 	for cs in cloudSystems
 		cs.move
 			deltaX: deltaX
-			deltaY: deltaY
+			deltaY: 0
