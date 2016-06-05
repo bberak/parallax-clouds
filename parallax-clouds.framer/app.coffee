@@ -1,6 +1,6 @@
 PerlinNoise = require "perlinNoise"
 
-createBasicCloud = ({color, getXFunc, getYFunc, scale, speed, noiseFunc}) -> ({x, y, parent}) ->
+createBasicCloud = ({color, getXFunc, getYFunc, scale, noiseFunc}) -> ({x, y, parent}) ->
 	cloud = new Layer
 		midX: getXFunc x
 		midY: getYFunc y
@@ -42,6 +42,7 @@ createBasicCloud = ({color, getXFunc, getYFunc, scale, speed, noiseFunc}) -> ({x
 	centerOffset = 1.5
 	humpSpacing = baseRect.width / centerOffset / numHumpJoins
 	noiseSeed = Utils.randomNumber(-50000, 50000)
+	
 	for i in [0.. numHumpJoins]
 		x = (-size / centerOffset) + (i * humpSpacing)
 		noiseVal = noiseFunc(x + noiseSeed, 0, 0)
@@ -59,15 +60,10 @@ createBasicCloud = ({color, getXFunc, getYFunc, scale, speed, noiseFunc}) -> ({x
 			scale: scale
 			opacity: 1
 	
-	cloud.animate
-		properties:
-			x: -5000
-		time: 200 - (200 * speed)
-	
 	return cloud
 	
 class CloudSystem extends Layer
-	constructor: ({x, y, z, parent, intervalFunc, createCloudFunc, damping}) ->
+	constructor: ({x, y, z, parent, speed, intervalFunc, createCloudFunc, damping}) ->
 		super
 			parent: parent
 			midX: x
@@ -77,6 +73,7 @@ class CloudSystem extends Layer
 			width: 1
 			backgroundColor: "transparent"
 			
+		@speed = speed
 		@sourceX = 0
 		@sourceY = 0
 		@createCloudFunc = createCloudFunc
@@ -86,10 +83,16 @@ class CloudSystem extends Layer
 		this.onInterval()
 		
 	onInterval: () ->
-		@createCloudFunc
+		cloud = @createCloudFunc
 			x: @sourceX
 			y: @sourceY
 			parent: this
+		
+		cloud.animate
+			properties:
+				x: -5000
+			time: 200 - (200 * @speed)
+			
 		Utils.delay @intervalFunc(), this.onInterval.bind(this)
 		
 	move: ({deltaX, deltaY}) ->
@@ -103,15 +106,13 @@ class CloudSystem extends Layer
 bg = new BackgroundLayer 
 	backgroundColor: "rgba(255,150,139,1)"
 	
-getHalfScreenWidth = () -> Screen.width / 2
-getHalfScreenHeight = () -> Screen.height / 2
-	
 cloudSystems = [
 	new CloudSystem
 		parent: bg
 		x: Screen.width
 		y: Screen.height * 0.5
 		z: 0
+		speed: 0.01
 		intervalFunc: () -> Utils.randomNumber(5, 10)
 		createCloudFunc: createBasicCloud 
 			color: "#DDD"
@@ -127,11 +128,11 @@ cloudSystems = [
 		x: Screen.width
 		y: Screen.height * 0.75
 		z: 1
+		speed: 0.25
 		intervalFunc: () -> Utils.randomNumber(5, 15)
 		createCloudFunc: createBasicCloud 
 			color: "#EEE"
 			scale: 1
-			speed: 0.25
 			getXFunc: (x) -> x
 			getYFunc: (y) -> y + Utils.randomNumber(-50, 150)
 			noiseFunc: PerlinNoise.noise
@@ -142,11 +143,11 @@ cloudSystems = [
 		x: Screen.width
 		y: Screen.height
 		z: 3
+		speed: 0.5
 		intervalFunc: () -> Utils.randomNumber(5, 20)
 		createCloudFunc: createBasicCloud 
 			color: "#FFF"
 			scale: 1.5
-			speed: 0.5
 			getXFunc: (x) -> x
 			getYFunc: (y) -> y + Utils.randomNumber(-100, 0)
 			noiseFunc: PerlinNoise.noise
