@@ -9,7 +9,6 @@ createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, anima
 		height: 1
 		backgroundColor: "transparent"
 		scale: 0.2
-		opacity: 0.2
 		
 	size = 100	
 	
@@ -103,7 +102,7 @@ class CloudSystem extends Layer
 		@sourceY -= deltaY
 
 bg = new BackgroundLayer 
-	backgroundColor: "rgba(191,173,255,1)"
+	backgroundColor: "rgba(255,150,139,1)"
 	
 getHalfScreenWidth = () -> Screen.width / 2
 getHalfScreenHeight = () -> Screen.height / 2
@@ -112,48 +111,48 @@ cloudSystems = [
 	new CloudSystem
 		parent: bg
 		x: Screen.width
-		y: getHalfScreenHeight()
+		y: Screen.height * 0.25
 		z: 0
-		intervalFunc: () -> Utils.randomNumber(5, 20)
+		intervalFunc: () -> Utils.randomNumber(5, 10)
 		createCloudFunc: createBasicCloud 
 			color: "#DDD"
 			scale: 0.4
 			animateX: -5000
 			animateTime: 200
 			getXFunc: (x) -> x
-			getYFunc: (y) -> y + Utils.randomNumber(- getHalfScreenHeight(), getHalfScreenHeight())
+			getYFunc: (y) -> y + Utils.randomNumber(-250, 250)
 			noiseFunc: PerlinNoise.noise
 		damping: 0.15
 		
 	new CloudSystem
 		parent: bg
 		x: Screen.width
-		y: getHalfScreenHeight()
+		y: Screen.height * 0.5
 		z: 1
-		intervalFunc: () -> Utils.randomNumber(5, 10)
+		intervalFunc: () -> Utils.randomNumber(5, 15)
 		createCloudFunc: createBasicCloud 
 			color: "#EEE"
 			scale: 1
 			animateX: -5000
 			animateTime: 150
 			getXFunc: (x) -> x
-			getYFunc: (y) -> y + Utils.randomNumber(- getHalfScreenHeight(), getHalfScreenHeight())
+			getYFunc: (y) -> y + Utils.randomNumber(-250, 250)
 			noiseFunc: PerlinNoise.noise
 		damping: 0.5
 		
 	new CloudSystem
 		parent: bg
 		x: Screen.width
-		y: getHalfScreenHeight()
+		y: Screen.height * 0.75
 		z: 3
-		intervalFunc: () -> Utils.randomNumber(5, 10)
+		intervalFunc: () -> Utils.randomNumber(5, 20)
 		createCloudFunc: createBasicCloud 
 			color: "#FFF"
 			scale: 1.5
 			animateX: -5000
 			animateTime: 100
 			getXFunc: (x) -> x
-			getYFunc: (y) -> y + Utils.randomNumber(- getHalfScreenHeight(), getHalfScreenHeight())
+			getYFunc: (y) -> y + Utils.randomNumber(-250, 250)
 			noiseFunc: PerlinNoise.noise
 		damping: 1.5
 ]
@@ -165,9 +164,3 @@ bg.onSwipe (event, layer) ->
 		cs.move
 			deltaX: deltaX
 			deltaY: deltaY
-
-
-		
-	
-
-	
