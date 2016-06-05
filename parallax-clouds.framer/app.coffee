@@ -1,6 +1,6 @@
 PerlinNoise = require "perlinNoise"
 
-createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, animateTime}) -> ({x, y, parent}) ->
+createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, animateTime, noiseFunc}) -> ({x, y, parent}) ->
 	cloud = new Layer
 		midX: getXFunc x
 		midY: getYFunc y
@@ -11,27 +11,56 @@ createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, anima
 		scale: 0.2
 		opacity: 0.2
 		
+	size = 100	
 	partWidth = 100
 	partHeight = 100
 	
-	for i in [0.. 5]
-		xOffset = partWidth * 0.6
-		yOffSet = partHeight * 0.4
-		widthOffset = partWidth * 0
-		heightOffset = partHeight * 0
-		part = new Layer
+	baseRect = new Layer
+		midX: 0
+		midY: 0
+		parent: cloud
+		backgroundColor: color
+		width: size * 2
+		height: size
+		
+	baseLeft = new Layer
+		midX: -size
+		midY: 0
+		parent: cloud
+		backgroundColor: color
+		width: size
+		height: size
+		borderRadius: size
+		
+	baseRight = new Layer
+		midX: size
+		midY: 0
+		parent: cloud
+		backgroundColor: color
+		width: size
+		height: size
+		borderRadius: size
+	
+	numHumpJoins = 3
+	offset = 1.5
+	spacing = baseRect.width / offset / numHumpJoins
+	noiseSeed = Utils.randomNumber(-50000, 50000)
+	for i in [0.. numHumpJoins]
+		x = (-size / offset) + (i * spacing)
+		noiseVal = noiseFunc(x + noiseSeed, 0, 0)
+		hump = new Layer
+			midX: x
+			midY: -size / 2
 			parent: cloud
-			midX: Utils.randomNumber(-xOffset, xOffset)
-			midY: Utils.randomNumber(-yOffSet, yOffSet)
-			width: partWidth + Utils.randomNumber(-widthOffset, widthOffset)
-			height: partHeight + Utils.randomNumber(-heightOffset, heightOffset)
-			borderRadius: 125
 			backgroundColor: color
-			scale: scale
+			width: size * noiseVal
+			height: size * noiseVal
+			borderRadius: size
+			scale: 2
 	
 	cloud.animate
 		properties:
-			scale: 1
+			scale: scale
 			opacity: 1
 	
 	cloud.animate
@@ -43,7 +72,7 @@ createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, anima
 	return cloud
 	
 class CloudSystem extends Layer
-	constructor: ({x, y, z, parent, interval, createCloudFunc, damping}) ->
+	constructor: ({x, y, z, parent, maxInterval, createCloudFunc, damping}) ->
 		super
 			parent: parent
 			midX: x
@@ -57,7 +86,7 @@ class CloudSystem extends Layer
 		@sourceY = 0
 		@createCloudFunc = createCloudFunc
 		@damping = damping
-		@interval = interval
+		@maxInterval = maxInterval
 		
 		this.onInterval()
 		
@@ -66,7 +95,7 @@ class CloudSystem extends Layer
 			x: @sourceX
 			y: @sourceY
 			parent: this
-		Utils.delay Utils.randomNumber(5, @interval), this.onInterval.bind(this)
+		Utils.delay Utils.randomNumber(5, @maxInterval), this.onInterval.bind(this)
 		
 	move: ({deltaX, deltaY}) ->
 		deltaX *= @damping
@@ -82,13 +111,14 @@ bg = new BackgroundLayer
 getHalfScreenWidth = () -> Screen.width / 2
 getHalfScreenHeight = () -> Screen.height / 2
 	
+###	
 cloudSystems = [
 	new CloudSystem
 		parent: bg
 		x: getHalfScreenWidth()
 		y: 0
 		z: 0
-		interval: 20
+		maxInterval: 20
 		createCloudFunc: createBasicCloud 
 			color: "#DDD"
 			scale: 0.4
@@ -103,7 +133,7 @@ cloudSystems = [
 		x: getHalfScreenWidth()
 		y: 0
 		z: 1
-		interval: 10
+		maxInterval: 10
 		createCloudFunc: createBasicCloud 
 			color: "#EEE"
 			scale: 1
@@ -118,7 +148,7 @@ cloudSystems = [
 		x: Screen.width + 150
 		y: getHalfScreenHeight()
 		z: 3
-		interval: 10
+		maxInterval: 10
 		createCloudFunc: createBasicCloud 
 			color: "#FFF"
 			scale: 2
@@ -136,7 +166,20 @@ bg.onSwipe (event, layer) ->
 		cs.move
 			deltaX: deltaX
 			deltaY: deltaY
-		
+###
+
+cc = createBasicCloud 
+	color: "#EEE"
+	scale: 1
+	animateTime: 150
+	getXFunc: (x) -> x 
+	getYFunc: (y) -> y
+	noiseFunc: PerlinNoise.noise
+
+cc 
+	x: 250
+	y: 500
+	parent: bg	
 
 
 		
