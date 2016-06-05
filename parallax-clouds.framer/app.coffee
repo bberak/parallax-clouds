@@ -12,8 +12,6 @@ createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, anima
 		opacity: 0.2
 		
 	size = 100	
-	partWidth = 100
-	partHeight = 100
 	
 	baseRect = new Layer
 		midX: 0
@@ -71,7 +69,7 @@ createBasicCloud = ({color, getXFunc, getYFunc, scale, animateX, animateY, anima
 	return cloud
 	
 class CloudSystem extends Layer
-	constructor: ({x, y, z, parent, maxInterval, createCloudFunc, damping}) ->
+	constructor: ({x, y, z, parent, intervalFunc, createCloudFunc, damping}) ->
 		super
 			parent: parent
 			midX: x
@@ -85,7 +83,7 @@ class CloudSystem extends Layer
 		@sourceY = 0
 		@createCloudFunc = createCloudFunc
 		@damping = damping
-		@maxInterval = maxInterval
+		@intervalFunc = intervalFunc
 		
 		this.onInterval()
 		
@@ -94,7 +92,7 @@ class CloudSystem extends Layer
 			x: @sourceX
 			y: @sourceY
 			parent: this
-		Utils.delay Utils.randomNumber(5, @maxInterval), this.onInterval.bind(this)
+		Utils.delay @intervalFunc(), this.onInterval.bind(this)
 		
 	move: ({deltaX, deltaY}) ->
 		deltaX *= @damping
@@ -116,7 +114,7 @@ cloudSystems = [
 		x: getHalfScreenWidth()
 		y: 0
 		z: 0
-		maxInterval: 20
+		intervalFunc: () -> Utils.randomNumber(5, 20)
 		createCloudFunc: createBasicCloud 
 			color: "#DDD"
 			scale: 0.4
@@ -132,7 +130,7 @@ cloudSystems = [
 		x: getHalfScreenWidth()
 		y: 0
 		z: 1
-		maxInterval: 10
+		intervalFunc: () -> Utils.randomNumber(5, 10)
 		createCloudFunc: createBasicCloud 
 			color: "#EEE"
 			scale: 1
@@ -148,7 +146,7 @@ cloudSystems = [
 		x: Screen.width + 150
 		y: getHalfScreenHeight()
 		z: 3
-		maxInterval: 10
+		intervalFunc: () -> Utils.randomNumber(5, 10)
 		createCloudFunc: createBasicCloud 
 			color: "#FFF"
 			scale: 1.5
