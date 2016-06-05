@@ -111,39 +111,39 @@ getHalfScreenHeight = () -> Screen.height / 2
 cloudSystems = [
 	new CloudSystem
 		parent: bg
-		x: getHalfScreenWidth()
-		y: 0
+		x: Screen.width
+		y: getHalfScreenHeight()
 		z: 0
 		intervalFunc: () -> Utils.randomNumber(5, 20)
 		createCloudFunc: createBasicCloud 
 			color: "#DDD"
 			scale: 0.4
-			animateY: 5000
+			animateX: -5000
 			animateTime: 200
-			getXFunc: (x) -> x + Utils.randomNumber(- getHalfScreenWidth(), getHalfScreenWidth())
-			getYFunc: (y) -> y
+			getXFunc: (x) -> x
+			getYFunc: (y) -> y + Utils.randomNumber(- getHalfScreenHeight(), getHalfScreenHeight())
 			noiseFunc: PerlinNoise.noise
 		damping: 0.15
 		
 	new CloudSystem
 		parent: bg
-		x: getHalfScreenWidth()
-		y: 0
+		x: Screen.width
+		y: getHalfScreenHeight()
 		z: 1
 		intervalFunc: () -> Utils.randomNumber(5, 10)
 		createCloudFunc: createBasicCloud 
 			color: "#EEE"
 			scale: 1
-			animateY: 5000
+			animateX: -5000
 			animateTime: 150
-			getXFunc: (x) -> x + Utils.randomNumber(- getHalfScreenWidth(), getHalfScreenWidth())
-			getYFunc: (y) -> y
+			getXFunc: (x) -> x
+			getYFunc: (y) -> y + Utils.randomNumber(- getHalfScreenHeight(), getHalfScreenHeight())
 			noiseFunc: PerlinNoise.noise
 		damping: 0.5
 		
 	new CloudSystem
 		parent: bg
-		x: Screen.width + 150
+		x: Screen.width
 		y: getHalfScreenHeight()
 		z: 3
 		intervalFunc: () -> Utils.randomNumber(5, 10)
